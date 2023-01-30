@@ -2,22 +2,28 @@
 
 namespace App\Services;
 
+use App\DTO\LotDto;
 use App\Models\Lot;
 
 class LotService
 {
-    public function handleCreate($request): void
+    public function store(LotDto $dto): void
     {
-        $data = $request->validated();
+        $lot = Lot::add([
+            'title' => $dto->title,
+            'description' => $dto->description
+        ]);
 
-        $lot = Lot::add($data);
-        $lot->setCategories($request->input('category_id'));
+        $lot->setCategories($dto->categories);
     }
 
-    public function handleUpdate($request, $lot): void
+    public function update($lot, LotDto $dto): void
     {
-        $data = $request->validated();
-        $lot->edit($data);
-        $lot->updateCategories($request->input('category_id'));
+        $lot->edit([
+            'title' => $dto->title,
+            'description' => $dto->description
+        ]);
+
+        $lot->updateCategories($dto->categories);
     }
 }

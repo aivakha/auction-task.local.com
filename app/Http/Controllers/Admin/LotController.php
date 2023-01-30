@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\LotDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Lot\StoreRequest;
 use App\Http\Requests\Lot\UpdateRequest;
@@ -11,6 +12,14 @@ use App\Services\LotService;
 
 class LotController extends Controller
 {
+
+    public function __construct(
+        protected LotService $service
+    )
+    {
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -39,11 +48,18 @@ class LotController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(StoreRequest $request, LotService $service)
+    public function store(StoreRequest $request)
     {
-        $service->handleCreate($request);
+        $dto = new LotDto(
+            title: $request->validated('title'),
+            description: $request->validated('description'),
+            categories: $request->validated('category_id')
+        );
+
+        $this->service->store($dto);
 
         return redirect()->route('lots.index')->with('success', 'Successfully created!');
     }
@@ -52,7 +68,8 @@ class LotController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Models\Lot  $lot
-     * @return \Illuminate\Http\Response
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function show(Lot $lot)
     {
@@ -78,11 +95,18 @@ class LotController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Lot  $lot
-     * @return \Illuminate\Http\Response
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateRequest $request, Lot $lot, LotService $service)
+    public function update(UpdateRequest $request, Lot $lot)
     {
-        $service->handleUpdate($request, $lot);
+        $dto = new LotDto(
+            title: $request->validated('title'),
+            description: $request->validated('description'),
+            categories: $request->validated('category_id')
+        );
+
+        $this->service->update($lot, $dto);
 
         return redirect()->route('lots.index')->with('success', 'Successfully updated!');
     }
